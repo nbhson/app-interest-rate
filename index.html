@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="appTitle">So sánh kịch bản vay - MortgageWise</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4f46e5', // indigo-600
+            'primary-focus': '#4338ca', // indigo-700
+            success: '#10b981', // emerald-500
+            error: '#ef4444', // red-500
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
+  
+  <!-- Sidebar -->
+  <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between flex-shrink-0 z-20 shadow-sm h-auto md:h-screen">
+    <div>
+      <div class="p-6 pb-2">
+        <div class="border border-slate-200 rounded-xl p-4 flex flex-col gap-1 bg-white">
+          <div class="font-extrabold text-slate-800 text-sm">Premium Tier</div>
+        </div>
+      </div>
+      
+      <ul class="menu px-4 py-4 gap-2 text-slate-500 font-semibold">
+        <li>
+          <a id="nav-single" class="px-4 py-3 rounded-lg text-sm cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            <span data-i18n="navScenarios">Scenarios</span>
+          </a>
+        </li>
+        <li>
+          <a id="nav-compare" class="px-4 py-3 rounded-lg text-sm cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            <span data-i18n="navComparisons">Comparisons</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="p-6 pt-0">
+
+      <div class="flex items-center gap-2 text-sm text-slate-500 cursor-pointer hover:text-slate-800 font-semibold px-2 mt-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        Support
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex-1 flex flex-col h-screen overflow-y-auto relative bg-slate-50/50">
+    
+    <!-- Top Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-5 sticky top-0 z-10">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-[11px] font-extrabold text-slate-400 mb-1 flex items-center gap-2 uppercase tracking-wide">
+            <span data-i18n="home">Trang chủ</span> <span class="text-slate-300">/</span> <span class="text-indigo-600" id="breadcrumb-active" data-i18n="navScenarios">Phân tích kịch bản</span>
+          </div>
+          <h1 class="text-[22px] font-extrabold text-slate-800" data-i18n="compareTitle" id="main-title">So sánh kịch bản vay - MortgageWise</h1>
+          <p class="text-xs font-semibold text-slate-500 mt-1" data-i18n="appSubtitle">Phân tích và tối ưu hóa các khoản vay bất động sản của bạn</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="join bg-slate-100 p-1 rounded-lg">
+            <button class="join-item btn btn-xs border-none font-bold shadow-none" id="lang-en">EN</button>
+            <button class="join-item btn btn-xs border-none font-bold shadow-none" id="lang-vi">VI</button>
+          </div>
+          <button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm rounded-lg font-semibold text-[13px] flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+            Chia sẻ
+          </button>
+          <button id="btn-export" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md rounded-lg font-semibold text-[13px] flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Xuất báo cáo (CSV)
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-8">
+      <div class="flex flex-col xl:flex-row gap-8 items-start">
+        
+        <!-- LEFT COLUMN: Inputs -->
+        <div class="w-full xl:w-[400px] shrink-0 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div class="flex items-center gap-2 mb-6">
+            <svg class="w-5 h-5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+            <h3 class="font-extrabold text-slate-800 text-[15px]" data-i18n="configTitle">Thông số khoản vay</h3>
+          </div>
+          
+          <div class="flex bg-slate-100/80 p-1 rounded-xl mb-6" id="scenario-tabs">
+            <button class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-center tab-btn" data-target="A">Kịch bản A</button>
+            <button class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-center tab-btn" data-target="B">Kịch bản B</button>
+          </div>
+          
+          <div class="space-y-6">
+            <div>
+              <label class="block text-[12px] font-bold text-slate-800 mb-2 uppercase tracking-wide" data-i18n="propertyPrice">Giá trị bất động sản (VNĐ)</label>
+              <div class="relative">
+                <span class="absolute left-4 top-3 text-slate-400 text-sm font-bold">$</span>
+                <input type="number" id="in-price" value="3000000000" min="0" step="100000000" class="w-full border border-slate-300 rounded-xl pl-8 pr-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white text-slate-800 shadow-sm">
+              </div>
+              <div class="text-right mt-1.5 flex flex-col items-end">
+                <span class="text-[11px] font-bold text-emerald-500" id="helper-price-num"></span>
+                <span class="text-[11px] font-medium text-slate-500 italic" id="helper-price-word"></span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-[12px] font-bold text-slate-800 uppercase tracking-wide" data-i18n="ltv">Tỷ lệ vay (LTV)</label>
+                <span class="text-[12px] font-bold text-emerald-600" id="in-ltv-val">50%</span>
+              </div>
+              <div class="px-1 mt-3">
+                <input type="range" id="in-ltv" value="50" min="0" max="100" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                <div class="flex justify-between mt-2"><span class="text-[10px] text-slate-500 font-bold">10%</span><span class="text-[10px] text-slate-500 font-bold">95%</span></div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoRate">Lãi ưu đãi</label>
+                <div class="relative">
+                  <input type="number" id="in-promoRate" value="10" min="0" step="0.1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
+                  <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Thời gian ưu đãi</label>
+                <div class="relative">
+                  <input type="number" id="in-promoPeriod" value="12" min="0" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
+                  <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">MO</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Lãi thả nổi</label>
+                <div class="relative">
+                  <input type="number" id="in-floatingRate" value="13" min="0" step="0.1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
+                  <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Thời hạn vay</label>
+                <div class="relative">
+                  <input type="number" id="in-loanTenure" value="10" min="1" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
+                  <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">YR</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-5">
+              <label class="block text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Trả thêm hàng tháng</label>
+              <div class="relative">
+                <span class="absolute left-4 top-3.5 text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" stroke-width="2"></rect><line x1="3" y1="10" x2="21" y2="10" stroke-width="2"></line></svg>
+                </span>
+                <input type="number" id="in-extraPayment" value="5000000" min="0" step="500000" class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm">
+              </div>
+              <div class="text-right mt-1.5 flex flex-col items-end">
+                <span class="text-[11px] font-bold text-emerald-500" id="helper-extra-num"></span>
+                <span class="text-[11px] font-medium text-slate-500 italic" id="helper-extra-word"></span>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-[12px] font-bold text-slate-800 mb-3">Phương thức trả nợ</label>
+              <div class="space-y-3">
+                <label class="repayment-label flex items-center gap-3 p-3.5 border-2 border-indigo-200 bg-indigo-50/30 rounded-xl cursor-pointer transition-colors" data-value="reducing">
+                  <input type="radio" name="repayment" value="reducing" class="repayment-radio w-4 h-4 text-indigo-600 bg-white border-slate-300 focus:ring-indigo-600 focus:ring-2" checked>
+                  <span class="text-[13px] font-bold text-slate-800">Dư nợ giảm dần</span>
+                </label>
+                <label class="repayment-label flex items-center gap-3 p-3.5 border border-slate-200 bg-white rounded-xl cursor-pointer hover:border-slate-300 transition-colors" data-value="annuity">
+                  <input type="radio" name="repayment" value="annuity" class="repayment-radio w-4 h-4 text-indigo-600 bg-white border-slate-300 focus:ring-indigo-600 focus:ring-2">
+                  <span class="text-[13px] font-medium text-slate-600">Trả đều hàng tháng (Annuity)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Results -->
+        <div class="flex-1 w-full flex flex-col gap-8">
+          
+          <!-- Summary Cards (Single Mode Default) -->
+          <div id="single-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3 text-indigo-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="totalPrincipalInterest">Tổng gốc và lãi</span>
+              </div>
+              <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-total">0</div>
+              <div class="text-[11px] font-extrabold text-success">VND</div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3 text-error">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="totalInterestOnly">Tổng lãi phải trả</span>
+              </div>
+              <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-interest">0</div>
+              <div class="text-[11px] font-extrabold text-error" id="out-diff-badge">+12% so với kịch bản A</div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3 text-emerald-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="monthlyPromo">Trả hàng tháng (đầu)</span>
+              </div>
+              <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-m1">0</div>
+              <div class="text-[11px] font-bold text-slate-500">Giảm dần theo dư nợ</div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3 text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="loanTenure">Thời hạn vay</span>
+              </div>
+              <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-tenure">240</div>
+              <div class="text-[11px] font-bold text-slate-500">Tháng (20 năm)</div>
+            </div>
+            
+          </div>
+
+          <!-- Comparison Summary Cards -->
+          <div id="compare-summary" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col justify-center relative overflow-hidden">
+              <svg class="absolute right-[-20px] top-[-10px] w-40 h-40 text-slate-50 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" stroke-width="1.5"/></svg>
+              <h4 class="font-extrabold text-slate-500 text-[11px] uppercase tracking-widest mb-3" data-i18n="totalPrincipalInterest">Total Principal + Interest</h4>
+              <div class="text-[32px] font-black text-slate-800 mb-3" id="comp-total-A">0 ₫</div>
+              <div class="flex items-center gap-2 relative z-10">
+                <span class="px-2.5 py-1 rounded-md bg-red-100 text-red-600 font-extrabold text-[11px] flex items-center gap-1 border border-red-200" id="comp-diff-total">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                   0 ₫
+                </span>
+                <span class="text-[11px] font-bold text-slate-400">vs Scenario B</span>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col justify-center relative overflow-hidden">
+              <svg class="absolute right-[-20px] top-[-10px] w-40 h-40 text-slate-50 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+              <h4 class="font-extrabold text-slate-500 text-[11px] uppercase tracking-widest mb-3" data-i18n="totalInterestOnly">Total Interest Cost</h4>
+              <div class="text-[32px] font-black text-slate-800 mb-3" id="comp-int-A">0 ₫</div>
+              <div class="flex items-center gap-2 relative z-10">
+                <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-600 font-extrabold text-[11px] flex items-center gap-1 border border-emerald-200" id="comp-diff-int">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                   Optimized
+                </span>
+                <span class="text-[11px] font-bold text-slate-400">Interest Savvy Selection</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Area -->
+          
+          <!-- Single Mode Charts -->
+          <div id="chart-single-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col h-[420px]">
+              <h3 class="font-extrabold text-slate-800 text-[16px] mb-6">Cơ cấu tổng khoản trả</h3>
+              <div class="flex-1 w-full" id="chart-pie-single"></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col h-[420px]">
+              <h3 class="font-extrabold text-slate-800 text-[16px] mb-1">Dư nợ theo thời gian</h3>
+              <p class="text-[12px] text-slate-500 font-semibold mb-6">Theo dõi tốc độ giảm nợ gốc</p>
+              <div class="flex-1 w-full" id="chart-line-single"></div>
+            </div>
+          </div>
+          
+          <!-- Compare Mode Chart -->
+          <div id="chart-combined-container" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hidden">
+             <div class="flex justify-between items-center mb-8">
+               <div>
+                 <h3 class="font-extrabold text-slate-800 text-[16px] mb-1">Loan Balance Comparison (Dư Nợ)</h3>
+                 <p class="text-[12px] text-slate-500 font-semibold">Projection over the full term</p>
+               </div>
+               <div class="flex items-center gap-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+                 <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-indigo-600 shadow-sm"></div>Scenario A</div>
+                 <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></div>Scenario B</div>
+               </div>
+             </div>
+             <div class="w-full h-[360px]" id="chart-combined"></div>
+          </div>
+
+          <!-- Milestones Table -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden" id="milestones-container">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+              <h3 class="font-extrabold text-slate-800 text-[16px]">Lịch thanh toán chi tiết</h3>
+              <div class="relative">
+                <input type="text" placeholder="Tìm kỳ hạn..." class="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold w-56 focus:outline-none focus:border-indigo-400 focus:bg-white transition-colors text-slate-700 placeholder-slate-400 shadow-sm">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead>
+                  <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/80">
+                    <th class="py-4 px-6">Kỳ hạn</th>
+                    <th class="py-4 px-6">Dư nợ đầu kỳ</th>
+                    <th class="py-4 px-6">Gốc phải trả</th>
+                    <th class="py-4 px-6">Lãi phải trả</th>
+                    <th class="py-4 px-6">Tổng trả</th>
+                    <th class="py-4 px-6">Dư nợ cuối kỳ</th>
+                  </tr>
+                </thead>
+                <tbody id="milestones-body" class="text-slate-800 font-semibold text-[13px]">
+                  <!-- JS generated -->
+                </tbody>
+              </table>
+              <div id="btn-show-all" class="text-center py-5 text-xs font-bold text-indigo-600 cursor-pointer hover:text-indigo-800 bg-slate-50/50 hover:bg-indigo-50/50 transition-colors border-t border-slate-100">
+                Xem toàn bộ lịch trình <svg class="w-3.5 h-3.5 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hidden" id="compare-pie-container">
+            <h3 class="font-extrabold text-slate-800 text-[16px] mb-8">Kết quả tính toán so sánh</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4">Kịch bản A</h4>
+                <div id="chart-pie-A" class="w-full h-[280px]"></div>
+              </div>
+              <div>
+                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4">Kịch bản B</h4>
+                <div id="chart-pie-B" class="w-full h-[280px]"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="calculator.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+const translations = {
+  en: {
+    appTitle: "Mortgage Calculator",
+    langToggle: "Tiếng Việt",
+    addComparison: "+ Add Comparison",
+    removeComparison: "- Remove Comparison",
+    scenarioA: "Scenario A",
+    scenarioB: "Scenario B",
+    
+    // Inputs
+    inputsTitle: "Loan Parameters",
+    propertyPrice: "Property Price (VND)",
+    ltv: "Loan-to-Value Ratio (%)",
+    promoRate: "Promotional Rate (%/yr)",
+    promoPeriod: "Promotional Period (months)",
+    floatingRate: "Floating Rate (%/yr)",
+    loanTenure: "Loan Tenure (years)",
+    extraPayment: "Extra Monthly Payment (VND)",
+    
+    // Outputs
+    resultsTitle: "Calculation Results",
+    loanAmount: "Loan Amount",
+    downPayment: "Down Payment (Equity)",
+    monthlyPromo: "Monthly Payment (Promo)",
+    monthlyFloating: "Monthly Payment (Floating)",
+    totalInterest: "Total Interest Paid",
+    totalPayment: "Total Payment to Bank",
+    totalCost: "Total Cost of Property",
+    
+    // Charts
+    chartPrincipalVsInterest: "Principal vs Interest",
+    chartPrincipal: "Principal",
+    chartInterest: "Interest",
+    chartRemainingBalance: "Remaining Balance Over Time",
+    chartBalance: "Balance",
+    
+    // Table
+    exportCSV: "Export to CSV",
+    tableMonth: "Month",
+    tablePayment: "Payment",
+    tablePrincipal: "Principal",
+    tableInterest: "Interest",
+    tableBalance: "Remaining Balance",
+    
+    // Milestones
+    milestonesTitle: "Repayment Milestones",
+    milestonesCount: "IMPORTANT MILESTONES",
+    monthBadge: "MONTH",
+    
+    // New UI Elements
+    appSubtitle: "Professional Real Estate Financial Planning Tool",
+    configTitle: "Configuration",
+    compareTitle: "Scenario Comparison",
+    difference: "Difference",
+    totalPrincipalInterest: "Total Principal + Interest",
+    totalInterestOnly: "Total Interest",
+    scenario: "Scenario",
+    home: "Home",
+    navScenarios: "Scenarios",
+    navComparisons: "Comparisons"
+  },
+  vi: {
+    appTitle: "Công cụ Tính Khoản Vay",
+    langToggle: "English",
+    addComparison: "+ Thêm Kịch Bản So Sánh",
+    removeComparison: "- Bỏ Kịch Bản",
+    scenarioA: "Kịch Bản A",
+    scenarioB: "Kịch Bản B",
+    
+    // Inputs
+    inputsTitle: "Thông Số Khoản Vay",
+    propertyPrice: "Giá Trị Bất Động Sản (VNĐ)",
+    ltv: "Tỷ Lệ Vay (%)",
+    promoRate: "Lãi Suất Ưu Đãi (%/năm)",
+    promoPeriod: "Thời Gian Ưu Đãi (tháng)",
+    floatingRate: "Lãi Suất Thả Nổi (%/năm)",
+    loanTenure: "Thời Hạn Vay (năm)",
+    extraPayment: "Trả Thêm Hàng Tháng (VNĐ)",
+    
+    // Outputs
+    resultsTitle: "Kết Quả Tính Toán",
+    loanAmount: "Số Tiền Vay",
+    downPayment: "Vốn Tự Có (Trả Trước)",
+    monthlyPromo: "Trả Hàng Tháng (Ưu Đãi)",
+    monthlyFloating: "Trả Hàng Tháng (Thả Nổi)",
+    totalInterest: "Tổng Lãi Phải Trả",
+    totalPayment: "Tổng Tiền Trả Ngân Hàng",
+    totalCost: "Tổng Chi Phí Mua Nhà",
+    
+    // Charts
+    chartPrincipalVsInterest: "Gốc và Lãi",
+    chartPrincipal: "Tiền Gốc",
+    chartInterest: "Tiền Lãi",
+    chartRemainingBalance: "Dư Nợ Còn Lại Theo Thời Gian",
+    chartBalance: "Dư Nợ",
+    
+    // Table
+    exportCSV: "Xuất file CSV",
+    tableMonth: "Tháng",
+    tablePayment: "Tổng Trả",
+    tablePrincipal: "Tiền Gốc",
+    tableInterest: "Tiền Lãi",
+    tableBalance: "Dư Nợ Còn Lại",
+    
+    // Milestones
+    milestonesTitle: "Cột mốc trả nợ",
+    milestonesCount: "CÁC MỐC THỜI GIAN QUAN TRỌNG",
+    monthBadge: "THÁNG",
+    
+    // New UI Elements
+    appSubtitle: "Công cụ hoạch định tài chính bất động sản chuyên nghiệp",
+    configTitle: "Cấu Hình",
+    compareTitle: "So sánh kịch bản vay",
+    difference: "Chênh lệch",
+    totalPrincipalInterest: "Tổng gốc + lãi",
+    totalInterestOnly: "Tổng tiền lãi",
+    scenario: "Kịch bản",
+    home: "Trang chủ",
+    navScenarios: "Phân tích kịch bản",
+    navComparisons: "So sánh kịch bản"
+  }
+};
+
+var currentLang = 'vi';
+
+function t(key) {
+  return translations[currentLang][key] || key;
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+}
+
+function updateTexts() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (el.tagName === 'INPUT' && el.type === 'button') {
+      el.value = t(key);
+    } else {
+      el.textContent = t(key);
+    }
+  });
+}

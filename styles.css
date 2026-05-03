@@ -1,0 +1,75 @@
+/* 
+  Styles are now managed via Tailwind CSS and DaisyUI utility classes.
+*/
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Highcharts Fix */
+.highcharts-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+.highcharts-axis-labels text,
+.highcharts-legend-item text,
+.highcharts-title,
+.highcharts-tooltip text {
+  fill: currentColor !important;
+}
+
+.highcharts-credits {
+  display: none !important;
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+[data-theme='dark'] body,
+[data-theme='dark'] .bg-slate-50,
+[data-theme='dark'] .bg-slate-50\/50 {
+  background-color: #0f172a !important; /* slate-900 */
+  color: #f1f5f9;
+}
+[data-theme='dark'] aside, 
+[data-theme='dark'] header,
+[data-theme='dark'] .bg-white,
+[data-theme='dark'] .bg-slate-100\/80 {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important; /* slate-700 */
+}
+[data-theme='dark'] .text-slate-800,
+[data-theme='dark'] .text-slate-700 {
+  color: #f1f5f9 !important;
+}
+[data-theme='dark'] .text-slate-500,
+[data-theme='dark'] .text-slate-400 {
+  color: #94a3b8 !important;
+}
+[data-theme='dark'] .border-slate-200,
+[data-theme='dark'] .border-slate-100 {
+  border-color: #334155 !important;
+}
+[data-theme='dark'] input:not([type='range']),
+[data-theme='dark'] select {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+[data-theme='dark'] .tab-btn.bg-white {
+  background-color: #334155 !important; /* active tab in dark mode */
+}
+
