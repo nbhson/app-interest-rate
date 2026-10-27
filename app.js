@@ -26,7 +26,18 @@ inputIds.forEach(id => {
 });
 const ltvVal = document.getElementById('in-ltv-val');
 
-let charts = { combined: null, pieSingle: null, lineSingle: null };
+let charts = { combined: null, pieSingle: null, lineSingle: null, pieA: null, pieB: null };
+
+// Destroy a chart before re-creating it — Highcharts throws Error 16 and
+// stacks duplicate SVGs when Highcharts.chart() is called on an occupied
+// container without destroying the previous instance first.
+function destroyChart(key) {
+  if (charts[key]) {
+    try { charts[key].destroy(); } catch (e) { /* already destroyed */ }
+    charts[key] = null;
+  }
+}
+
 
 // Init
 updateTexts();
@@ -325,6 +336,7 @@ function updateUI() {
 }
 
 function renderCombinedChart(scheduleA, scheduleB) {
+  destroyChart("combined");
   const dataA = scheduleA.map(row => row.balance);
   const dataB = scheduleB.map(row => row.balance);
 
@@ -372,6 +384,7 @@ function renderCombinedChart(scheduleA, scheduleB) {
 }
 
 function renderPieChartSingle(principal, interest) {
+  destroyChart("pieSingle");
   charts.pieSingle = Highcharts.chart('chart-pie-single', {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 320 },
     title: {
@@ -414,6 +427,7 @@ function renderPieChartCompare(scenario, principal, interest) {
   if (scenario === 'A') colors = ['#4f46e5', '#cbd5e1'];
   if (scenario === 'B') colors = ['#10b981', '#a7f3d0'];
 
+  destroyChart(chartKey);
   charts[chartKey] = Highcharts.chart(containerId, {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 280 },
     title: {
@@ -450,6 +464,7 @@ function renderPieChartCompare(scenario, principal, interest) {
 }
 
 function renderLineChartSingle(schedule) {
+  destroyChart("lineSingle");
   const data = schedule.map(row => row.balance);
 
   charts.lineSingle = Highcharts.chart('chart-line-single', {

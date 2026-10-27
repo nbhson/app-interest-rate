@@ -57,7 +57,9 @@ const translations = {
     scenario: "Scenario",
     home: "Home",
     navScenarios: "Scenarios",
-    navComparisons: "Comparisons"
+    navComparisons: "Comparisons",
+    appBrand: "MortgageWise",
+    appTagline: "Smart mortgage comparison"
   },
   vi: {
     appTitle: "Công cụ Tính Khoản Vay",
@@ -117,7 +119,9 @@ const translations = {
     scenario: "Kịch bản",
     home: "Trang chủ",
     navScenarios: "Phân tích kịch bản",
-    navComparisons: "So sánh kịch bản"
+    navComparisons: "So sánh kịch bản",
+    appBrand: "MortgageWise",
+    appTagline: "So sánh vay thông minh"
   }
 };
 
