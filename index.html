@@ -4,7 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="appTitle">So sánh kịch bản vay - MortgageWise</title>
-  
+
+  <!-- Restore theme TRƯỚC khi render để tránh flash light theme -->
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark' || theme === 'light') {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+      } catch (e) { /* localStorage bị chặn — dùng mặc định */ }
+    })();
+  </script>
+
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -58,11 +70,6 @@
     </div>
     
     <div class="p-6 pt-0">
-
-      <div class="flex items-center gap-2 text-sm text-slate-500 cursor-pointer hover:text-slate-800 font-semibold px-2 mt-6">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-        Support
-      </div>
     </div>
   </aside>
 
@@ -216,7 +223,6 @@
                 <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="totalInterestOnly">Tổng lãi phải trả</span>
               </div>
               <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-interest">0</div>
-              <div class="text-[11px] font-extrabold text-error" id="out-diff-badge">+12% so với kịch bản A</div>
             </div>
             
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
@@ -302,10 +308,6 @@
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden" id="milestones-container">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
               <h3 class="font-extrabold text-slate-800 text-[16px]">Lịch thanh toán chi tiết</h3>
-              <div class="relative">
-                <input type="text" placeholder="Tìm kỳ hạn..." class="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold w-56 focus:outline-none focus:border-indigo-400 focus:bg-white transition-colors text-slate-700 placeholder-slate-400 shadow-sm">
-                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-              </div>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs text-left">

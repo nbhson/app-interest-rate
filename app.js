@@ -44,12 +44,21 @@ updateTexts();
 syncInputsToState();
 recalculateAll();
 
+// Restore saved preferences (language + theme) before wiring handlers
+const savedLang = localStorage.getItem('lang');
+if (savedLang === 'en' || savedLang === 'vi') currentLang = savedLang;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark' || savedTheme === 'light') {
+  document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
 // Language Toggle
 document.getElementById('lang-en').addEventListener('click', () => setLang('en'));
 document.getElementById('lang-vi').addEventListener('click', () => setLang('vi'));
 
 function setLang(lang) {
   currentLang = lang;
+  localStorage.setItem('lang', lang);
 
   const btnEn = document.getElementById('lang-en');
   const btnVi = document.getElementById('lang-vi');
@@ -136,7 +145,11 @@ function setMode(mode) {
 
   updateTexts();
   recalculateAll();
-  setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+  // Chart container vừa đổi từ display:none sang block — Highcharts cần
+  // reflow để tính lại kích thước (thay cho hack dispatch resize event).
+  setTimeout(() => {
+    Object.values(charts).forEach(c => { if (c && typeof c.reflow === 'function') c.reflow(); });
+  }, 100);
 }
 
 // Tab Toggle
@@ -146,16 +159,20 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       b.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'font-bold');
       b.classList.add('text-slate-500', 'hover:text-slate-700', 'font-medium');
     });
-    e.target.classList.remove('text-slate-500', 'hover:text-slate-700', 'font-medium');
-    e.target.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'font-bold');
+    // e.currentTarget luôn là button gắn listener; e.target có thể là node con
+    const btnEl = e.currentTarget;
+    btnEl.classList.remove('text-slate-500', 'hover:text-slate-700', 'font-medium');
+    btnEl.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'font-bold');
 
-    state.activeTab = e.target.getAttribute('data-target');
+    state.activeTab = btnEl.getAttribute('data-target');
     syncInputsToState();
     recalculateAll();
   });
 });
 
-// Input Listeners
+// Input Listeners — debounce để không destroy/rebuild chart Highcharts
+// (~50-200ms mỗi lần) trên TỪNG lần gõ phím.
+let recalcTimer = null;
 inputIds.forEach(id => {
   if (domInputs[id]) {
     domInputs[id].addEventListener('input', (e) => {
@@ -164,7 +181,8 @@ inputIds.forEach(id => {
         if (ltvVal) ltvVal.textContent = state[state.activeTab].ltv + '%';
       }
       updateHelpers();
-      recalculateAll();
+      if (recalcTimer) clearTimeout(recalcTimer);
+      recalcTimer = setTimeout(() => { recalcTimer = null; recalculateAll(); }, 250);
     });
   }
 });
@@ -241,14 +259,48 @@ function updateHelpers() {
 
 function numberToVietnameseWords(num) {
   if (num === 0) return '0 đồng';
-  let result = '';
+  const units = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+
+  // Đọc số < 1000: ví dụ 345 -> "ba trăm bốn mươi lăm"
+  const readSmall = (n) => {
+    const hundreds = Math.floor(n / 100);
+    const tens = Math.floor((n % 100) / 10);
+    const ones = n % 10;
+    let s = '';
+    if (hundreds > 0) s += units[hundreds] + ' trăm ';
+    if (tens > 1) {
+      s += units[tens] + ' mươi ';
+      if (ones === 1) s += 'mốt ';
+      else if (ones === 5) s += 'lăm ';
+      else if (ones > 0) s += units[ones] + ' ';
+    } else if (tens === 1) {
+      s += 'mười ';
+      if (ones === 5) s += 'lăm ';
+      else if (ones > 0) s += units[ones] + ' ';
+    } else if (hundreds > 0 && ones > 0) {
+      s += 'lẻ ' + units[ones] + ' ';
+    } else if (ones > 0) {
+      s += units[ones] + ' ';
+    }
+    return s.trim();
+  };
+
   const ty = Math.floor(num / 1000000000);
   const trieu = Math.floor((num % 1000000000) / 1000000);
   const nghin = Math.floor((num % 1000000) / 1000);
+  const remainder = num % 1000;
 
+  let result = '';
   if (ty > 0) result += ty + ' tỷ ';
   if (trieu > 0) result += trieu + ' triệu ';
-  if (nghin > 0) result += nghin + ' nghìn ';
+  if (nghin > 0) result += readSmall(nghin) + ' nghìn ';
+
+  if (ty === 0 && trieu === 0 && nghin === 0) return readSmall(num) + ' đồng';
+  if (remainder > 0) {
+    // Phần lẻ < 100 sau "nghìn" đọc thêm "lẻ" (vd: 1.005 -> "một nghìn lẻ năm")
+    if (remainder < 100 && (nghin > 0 || trieu > 0 || ty > 0)) result += 'lẻ ';
+    result += readSmall(remainder) + ' ';
+  }
   return result.trim() + ' đồng';
 }
 
@@ -352,7 +404,7 @@ function renderCombinedChart(scheduleA, scheduleB) {
     tooltip: {
       shared: true,
       formatter: function () {
-        let s = `Tháng ${this.x}`;
+        let s = `${t('tableMonth')} ${this.x}`;
         this.points.forEach(point => {
           s += `<br/>${point.series.name}: <b>${formatCurrency(point.y)}</b>`;
         });
@@ -509,7 +561,7 @@ function renderLineChartSingle(schedule) {
       }
     },
     series: [
-      { type: 'area', name: 'Dư Nợ', data: data, color: '#4f46e5' }
+      { type: 'area', name: t('chartBalance'), data: data, color: '#4f46e5' }
     ],
     credits: { enabled: false }
   });
@@ -567,38 +619,44 @@ if (btnExport) {
     const schedule = state[state.activeTab].result.amortizationSchedule;
     if (!schedule || schedule.length === 0) return;
 
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    csvContent += `${t('tableMonth')},${t('tablePayment')},${t('tablePrincipal')},${t('tableInterest')},${t('tableBalance')}\n`;
+    // Escape giá trị CSV: bọc trong ngoặc kép và escape dấu nháy
+    const csvField = (v) => '"' + String(v).replace(/"/g, '""') + '"';
 
+    // Blob + objectURL thay vì encodeURI data-URI (giới hạn độ dài, không escape đúng)
+    const rows = [
+      [t('tableMonth'), t('tablePayment'), t('tablePrincipal'), t('tableInterest'), t('tableBalance')].map(csvField).join(',')
+    ];
     schedule.forEach(row => {
       const rowArray = [row.month, Math.round(row.payment), Math.round(row.principal), Math.round(row.interest), Math.round(row.balance)];
-      csvContent += rowArray.join(",") + "\n";
+      rows.push(rowArray.join(","));
     });
 
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `mortgage_schedule_${state.activeTab}.csv`);
+    link.href = url;
+    link.download = `mortgage_schedule_${state.activeTab}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   });
 }
 
 
 
 const btnShowAll = document.getElementById('btn-show-all');
+const SVG_CHEVRON = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>';
+function updateShowAllText() {
+  if (!btnShowAll) return;
+  btnShowAll.innerHTML = (state.showFullSchedule
+    ? `${t('collapseSchedule')} `
+    : `${t('showFullSchedule')} `) + SVG_CHEVRON.replace('w-4 h-4"', state.showFullSchedule ? 'w-4 h-4 rotate-180"' : 'w-4 h-4"');
+}
 if (btnShowAll) {
   btnShowAll.addEventListener('click', () => {
     state.showFullSchedule = !state.showFullSchedule;
-
-    // Update button text
-    if (state.showFullSchedule) {
-      btnShowAll.innerHTML = `Thu gọn lịch trình <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
-    } else {
-      btnShowAll.innerHTML = `Xem toàn bộ lịch trình trả nợ <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
-    }
-
+    updateShowAllText();
     recalculateAll();
   });
 }
@@ -611,21 +669,23 @@ const themeText = document.getElementById('theme-text');
 const htmlEl = document.documentElement;
 
 if (themeToggle) {
+  const applyThemeUI = (theme) => {
+    const isDark = theme === 'dark';
+    if (themeIconSun) themeIconSun.classList.toggle('hidden', isDark);
+    if (themeIconMoon) themeIconMoon.classList.toggle('hidden', !isDark);
+    if (themeText) themeText.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  };
+
+  // Đồng bộ icon với theme đã restore từ localStorage ở đầu file
+  applyThemeUI(htmlEl.getAttribute('data-theme') || 'light');
+
   themeToggle.addEventListener('click', () => {
     const isDark = htmlEl.getAttribute('data-theme') === 'dark';
     const newTheme = isDark ? 'light' : 'dark';
     htmlEl.setAttribute('data-theme', newTheme);
-    
-    if (newTheme === 'dark') {
-      themeIconSun.classList.add('hidden');
-      themeIconMoon.classList.remove('hidden');
-      themeText.textContent = 'Dark Mode';
-    } else {
-      themeIconSun.classList.remove('hidden');
-      themeIconMoon.classList.add('hidden');
-      themeText.textContent = 'Light Mode';
-    }
-    
+    localStorage.setItem('theme', newTheme);
+    applyThemeUI(newTheme);
+
     // Refresh charts to match theme if needed
     recalculateAll();
   });
@@ -633,4 +693,5 @@ if (themeToggle) {
 
 // Init
 setLang(currentLang);
+updateShowAllText();
 setMode('single');

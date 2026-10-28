@@ -59,7 +59,9 @@ const translations = {
     navScenarios: "Scenarios",
     navComparisons: "Comparisons",
     appBrand: "MortgageWise",
-    appTagline: "Smart mortgage comparison"
+    appTagline: "Smart mortgage comparison",
+    showFullSchedule: "View full repayment schedule",
+    collapseSchedule: "Collapse schedule"
   },
   vi: {
     appTitle: "Công cụ Tính Khoản Vay",
@@ -121,18 +123,27 @@ const translations = {
     navScenarios: "Phân tích kịch bản",
     navComparisons: "So sánh kịch bản",
     appBrand: "MortgageWise",
-    appTagline: "So sánh vay thông minh"
+    appTagline: "So sánh vay thông minh",
+    showFullSchedule: "Xem toàn bộ lịch trình trả nợ",
+    collapseSchedule: "Thu gọn lịch trình"
   }
 };
 
 var currentLang = 'vi';
 
 function t(key) {
-  return translations[currentLang][key] || key;
+  const value = translations[currentLang][key];
+  if (value === undefined) {
+    // Key thiếu không được render âm thầm dưới dạng key-name
+    console.warn('[i18n] Missing translation key: "' + key + '" (lang: ' + currentLang + ')');
+    return key;
+  }
+  return value;
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  const locale = currentLang === 'en' ? 'en-US' : 'vi-VN';
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: 'VND' }).format(value);
 }
 
 function updateTexts() {
