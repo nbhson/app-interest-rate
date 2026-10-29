@@ -457,7 +457,7 @@ function updateUI() {
 function renderSavingsInsight(res) {
   const banner = document.getElementById('savings-banner');
   const text = document.getElementById('savings-text');
-  if (!banner || !res) return;
+  if (!banner || !text || !res) return;
 
   if (state.mode !== 'single') {
     banner.classList.add('hidden');
@@ -482,7 +482,6 @@ function renderSavingsInsight(res) {
 
   const monthsEarly = baseline.payoffMonths - cur.payoffMonths;
   const savedInterest = baseline.totalInterest - cur.totalInterest;
-  const textEl = document.getElementById('savings-text');
 
   if (monthsEarly > 0 && savedInterest > 0) {
     banner.classList.remove('hidden');

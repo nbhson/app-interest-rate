@@ -85,9 +85,9 @@ const translations = {
     m1NoteReducing: "Decreases with balance",
     m1NoteAnnuity: "Fixed throughout the term",
     vsScenarioB: "vs Scenario B",
-    savingsEarly: "paid off earlier",
-    savingsPrefix: "Extra payments pay off the loan",
-    savingsSuffix: "saving this much interest:"
+    savingsEarly: "months earlier",
+    savingsPrefix: "Extra monthly payments pay off the loan",
+    savingsSuffix: "and save this much interest:"
   },
   vi: {
     appTitle: "Công cụ Tính Khoản Vay",
