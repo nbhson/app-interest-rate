@@ -34,6 +34,8 @@
     }
   </script>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f46e5'/><text x='16' y='22' font-size='16' font-weight='bold' text-anchor='middle' fill='white'>₫</text></svg>" />
+  <meta name="theme-color" content="#4f46e5" />
   
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -91,9 +93,14 @@
             <button class="join-item btn btn-xs border-none font-bold shadow-none" id="lang-en">EN</button>
             <button class="join-item btn btn-xs border-none font-bold shadow-none" id="lang-vi">VI</button>
           </div>
+          <button id="theme-toggle" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-[13px] flex items-center gap-2 transition-all" aria-label="Toggle dark mode">
+            <svg id="theme-icon-sun" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.3 11.4l1.1 1.3M2 12h2m16 0h2M4.9 19.1l1.1-1.3M18.2 6.3l1.3-1.3"/></svg>
+            <svg id="theme-icon-moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            <span id="theme-text">Dark Mode</span>
+          </button>
           <button id="btn-export" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md rounded-lg font-semibold text-[13px] flex items-center gap-2 transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Xuất báo cáo (CSV)
+            <span data-i18n="exportCSV">Xuất file CSV</span>
           </button>
         </div>
       </div>
@@ -118,8 +125,8 @@
             <div>
               <label class="block text-[12px] font-bold text-slate-800 mb-2 uppercase tracking-wide" data-i18n="propertyPrice">Giá trị bất động sản (VNĐ)</label>
               <div class="relative">
-                <span class="absolute left-4 top-3 text-slate-400 text-sm font-bold">$</span>
-                <input type="number" id="in-price" value="3000000000" min="0" step="100000000" class="w-full border border-slate-300 rounded-xl pl-8 pr-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white text-slate-800 shadow-sm">
+                <span class="absolute left-4 top-3 text-slate-400 text-sm font-bold">₫</span>
+                <input type="number" id="in-price" value="3000000000" min="0" step="100000000" class="w-full border border-slate-300 rounded-xl pl-8 pr-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white text-slate-800 shadow-sm" aria-label="Giá trị bất động sản">
               </div>
               <div class="text-right mt-1.5 flex flex-col items-end">
                 <span class="text-[11px] font-bold text-emerald-500" id="helper-price-num"></span>
@@ -147,7 +154,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Thời gian ưu đãi</label>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoPeriodShort">Thời gian ưu đãi</label>
                 <div class="relative">
                   <input type="number" id="in-promoPeriod" value="12" min="0" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">MO</span>
@@ -157,14 +164,14 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Lãi thả nổi</label>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="floatingRateShort">Lãi thả nổi</label>
                 <div class="relative">
                   <input type="number" id="in-floatingRate" value="13" min="0" step="0.1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">%</span>
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Thời hạn vay</label>
+                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="tenureShort">Thời hạn vay</label>
                 <div class="relative">
                   <input type="number" id="in-loanTenure" value="10" min="1" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">YR</span>
@@ -173,7 +180,7 @@
             </div>
 
             <div class="border-t border-slate-100 pt-5">
-              <label class="block text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Trả thêm hàng tháng</label>
+              <label class="block text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="extraPayment">Trả thêm hàng tháng</label>
               <div class="relative">
                 <span class="absolute left-4 top-3.5 text-slate-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" stroke-width="2"></rect><line x1="3" y1="10" x2="21" y2="10" stroke-width="2"></line></svg>
@@ -187,15 +194,15 @@
             </div>
             
             <div>
-              <label class="block text-[12px] font-bold text-slate-800 mb-3">Phương thức trả nợ</label>
+              <label class="block text-[12px] font-bold text-slate-800 mb-3" data-i18n="repaymentMethodTitle">Phương thức trả nợ</label>
               <div class="space-y-3">
                 <label class="repayment-label flex items-center gap-3 p-3.5 border-2 border-indigo-200 bg-indigo-50/30 rounded-xl cursor-pointer transition-colors" data-value="reducing">
                   <input type="radio" name="repayment" value="reducing" class="repayment-radio w-4 h-4 text-indigo-600 bg-white border-slate-300 focus:ring-indigo-600 focus:ring-2" checked>
-                  <span class="text-[13px] font-bold text-slate-800">Dư nợ giảm dần</span>
+                  <span class="text-[13px] font-bold text-slate-800" data-i18n="reducingLabel">Dư nợ giảm dần</span>
                 </label>
                 <label class="repayment-label flex items-center gap-3 p-3.5 border border-slate-200 bg-white rounded-xl cursor-pointer hover:border-slate-300 transition-colors" data-value="annuity">
                   <input type="radio" name="repayment" value="annuity" class="repayment-radio w-4 h-4 text-indigo-600 bg-white border-slate-300 focus:ring-indigo-600 focus:ring-2">
-                  <span class="text-[13px] font-medium text-slate-600">Trả đều hàng tháng (Annuity)</span>
+                  <span class="text-[13px] font-medium text-slate-600" data-i18n="annuityLabel">Trả đều hàng tháng (Annuity)</span>
                 </label>
               </div>
             </div>
@@ -231,7 +238,7 @@
                 <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="monthlyPromo">Trả hàng tháng (đầu)</span>
               </div>
               <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-m1">0</div>
-              <div class="text-[11px] font-bold text-slate-500">Giảm dần theo dư nợ</div>
+              <div class="text-[11px] font-bold text-slate-500" id="out-m1-note">Giảm dần theo dư nợ</div>
             </div>
             
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
@@ -240,7 +247,7 @@
                 <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-widest" data-i18n="loanTenure">Thời hạn vay</span>
               </div>
               <div class="text-[24px] font-extrabold text-slate-800 mb-1 leading-tight" id="out-tenure">240</div>
-              <div class="text-[11px] font-bold text-slate-500">Tháng (20 năm)</div>
+              <div class="text-[11px] font-bold text-slate-500" id="out-tenure-note">Tháng</div>
             </div>
             
           </div>
@@ -256,7 +263,7 @@
                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                    0 ₫
                 </span>
-                <span class="text-[11px] font-bold text-slate-400">vs Scenario B</span>
+                <span class="text-[11px] font-bold text-slate-400" data-i18n="vsScenarioB">vs Scenario B</span>
               </div>
             </div>
             
@@ -267,11 +274,17 @@
               <div class="flex items-center gap-2 relative z-10">
                 <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-600 font-extrabold text-[11px] flex items-center gap-1 border border-emerald-200" id="comp-diff-int">
                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                   Optimized
+                   0 ₫
                 </span>
-                <span class="text-[11px] font-bold text-slate-400">Interest Savvy Selection</span>
+                <span class="text-[11px] font-bold text-slate-400" data-i18n="vsScenarioB">vs Scenario B</span>
               </div>
             </div>
+          </div>
+
+          <!-- Savings insight (single mode) -->
+          <div id="savings-banner" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl px-6 py-4 flex items-center gap-3">
+            <span class="text-2xl" aria-hidden="true">💸</span>
+            <p class="text-[13px] font-semibold text-emerald-800 leading-relaxed" id="savings-text"></p>
           </div>
 
           <!-- Charts Area -->
@@ -279,12 +292,12 @@
           <!-- Single Mode Charts -->
           <div id="chart-single-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col h-[420px]">
-              <h3 class="font-extrabold text-slate-800 text-[16px] mb-6">Cơ cấu tổng khoản trả</h3>
+              <h3 class="font-extrabold text-slate-800 text-[16px] mb-6" data-i18n="chartStructure">Cơ cấu tổng khoản trả</h3>
               <div class="flex-1 w-full" id="chart-pie-single"></div>
             </div>
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col h-[420px]">
-              <h3 class="font-extrabold text-slate-800 text-[16px] mb-1">Dư nợ theo thời gian</h3>
-              <p class="text-[12px] text-slate-500 font-semibold mb-6">Theo dõi tốc độ giảm nợ gốc</p>
+              <h3 class="font-extrabold text-slate-800 text-[16px] mb-1" data-i18n="chartBalanceTitle">Dư nợ theo thời gian</h3>
+              <p class="text-[12px] text-slate-500 font-semibold mb-6" data-i18n="chartBalanceSub">Theo dõi tốc độ giảm nợ gốc</p>
               <div class="flex-1 w-full" id="chart-line-single"></div>
             </div>
           </div>
@@ -293,8 +306,8 @@
           <div id="chart-combined-container" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hidden">
              <div class="flex justify-between items-center mb-8">
                <div>
-                 <h3 class="font-extrabold text-slate-800 text-[16px] mb-1">Loan Balance Comparison (Dư Nợ)</h3>
-                 <p class="text-[12px] text-slate-500 font-semibold">Projection over the full term</p>
+                 <h3 class="font-extrabold text-slate-800 text-[16px] mb-1" data-i18n="compareChartTitle">Loan Balance Comparison</h3>
+                 <p class="text-[12px] text-slate-500 font-semibold" data-i18n="compareChartSub">Projection over the full term</p>
                </div>
                <div class="flex items-center gap-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
                  <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-indigo-600 shadow-sm"></div>Scenario A</div>
@@ -307,18 +320,18 @@
           <!-- Milestones Table -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden" id="milestones-container">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
-              <h3 class="font-extrabold text-slate-800 text-[16px]">Lịch thanh toán chi tiết</h3>
+              <h3 class="font-extrabold text-slate-800 text-[16px]" data-i18n="scheduleTitle">Lịch thanh toán chi tiết</h3>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs text-left">
                 <thead>
                   <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/80">
-                    <th class="py-4 px-6">Kỳ hạn</th>
-                    <th class="py-4 px-6">Dư nợ đầu kỳ</th>
-                    <th class="py-4 px-6">Gốc phải trả</th>
-                    <th class="py-4 px-6">Lãi phải trả</th>
-                    <th class="py-4 px-6">Tổng trả</th>
-                    <th class="py-4 px-6">Dư nợ cuối kỳ</th>
+                    <th class="py-4 px-6" data-i18n="tableMonth">Kỳ hạn</th>
+                    <th class="py-4 px-6" data-i18n="balanceStart">Dư nợ đầu kỳ</th>
+                    <th class="py-4 px-6" data-i18n="tablePrincipal">Gốc phải trả</th>
+                    <th class="py-4 px-6" data-i18n="tableInterest">Lãi phải trả</th>
+                    <th class="py-4 px-6" data-i18n="tablePayment">Tổng trả</th>
+                    <th class="py-4 px-6" data-i18n="tableBalance">Dư nợ cuối kỳ</th>
                   </tr>
                 </thead>
                 <tbody id="milestones-body" class="text-slate-800 font-semibold text-[13px]">
@@ -332,14 +345,14 @@
           </div>
           
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hidden" id="compare-pie-container">
-            <h3 class="font-extrabold text-slate-800 text-[16px] mb-8">Kết quả tính toán so sánh</h3>
+            <h3 class="font-extrabold text-slate-800 text-[16px] mb-8" data-i18n="compareResultTitle">Kết quả tính toán so sánh</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4">Kịch bản A</h4>
+                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4" data-i18n="scenarioA">Kịch bản A</h4>
                 <div id="chart-pie-A" class="w-full h-[280px]"></div>
               </div>
               <div>
-                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4">Kịch bản B</h4>
+                <h4 class="text-center font-extrabold text-slate-500 uppercase tracking-widest text-[11px] mb-4" data-i18n="scenarioB">Kịch bản B</h4>
                 <div id="chart-pie-B" class="w-full h-[280px]"></div>
               </div>
             </div>

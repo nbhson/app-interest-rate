@@ -61,7 +61,33 @@ const translations = {
     appBrand: "MortgageWise",
     appTagline: "Smart mortgage comparison",
     showFullSchedule: "View full repayment schedule",
-    collapseSchedule: "Collapse schedule"
+    collapseSchedule: "Collapse schedule",
+
+    // Round 2
+    promoPeriodShort: "Promo period",
+    floatingRateShort: "Floating rate",
+    tenureShort: "Tenure",
+    repaymentMethodTitle: "Repayment method",
+    reducingLabel: "Reducing balance",
+    annuityLabel: "Fixed annuity",
+    themeDark: "Dark mode",
+    themeLight: "Light mode",
+    balanceStart: "Opening balance",
+    chartStructure: "Payment structure",
+    chartBalanceTitle: "Balance over time",
+    chartBalanceSub: "Watch your principal speed up",
+    compareChartTitle: "Loan balance comparison",
+    compareChartSub: "Projection over the full term",
+    scheduleTitle: "Detailed payment schedule",
+    compareResultTitle: "Comparison results",
+    months: "months",
+    years: "yrs",
+    m1NoteReducing: "Decreases with balance",
+    m1NoteAnnuity: "Fixed throughout the term",
+    vsScenarioB: "vs Scenario B",
+    savingsEarly: "paid off earlier",
+    savingsPrefix: "Extra payments pay off the loan",
+    savingsSuffix: "saving this much interest:"
   },
   vi: {
     appTitle: "Công cụ Tính Khoản Vay",
@@ -125,7 +151,33 @@ const translations = {
     appBrand: "MortgageWise",
     appTagline: "So sánh vay thông minh",
     showFullSchedule: "Xem toàn bộ lịch trình trả nợ",
-    collapseSchedule: "Thu gọn lịch trình"
+    collapseSchedule: "Thu gọn lịch trình",
+
+    // Round 2
+    promoPeriodShort: "Thời gian ưu đãi",
+    floatingRateShort: "Lãi thả nổi",
+    tenureShort: "Thời hạn vay",
+    repaymentMethodTitle: "Phương thức trả nợ",
+    reducingLabel: "Dư nợ giảm dần",
+    annuityLabel: "Trả đều hàng tháng (Annuity)",
+    themeDark: "Nền tối",
+    themeLight: "Nền sáng",
+    balanceStart: "Dư nợ đầu kỳ",
+    chartStructure: "Cơ cấu tổng khoản trả",
+    chartBalanceTitle: "Dư nợ theo thời gian",
+    chartBalanceSub: "Theo dõi tốc độ giảm nợ gốc",
+    compareChartTitle: "So sánh dư nợ theo thời gian",
+    compareChartSub: "Dự báo trong toàn bộ thời hạn vay",
+    scheduleTitle: "Lịch thanh toán chi tiết",
+    compareResultTitle: "Kết quả tính toán so sánh",
+    months: "tháng",
+    years: "năm",
+    m1NoteReducing: "Giảm dần theo dư nợ",
+    m1NoteAnnuity: "Cố định suốt thời hạn vay",
+    vsScenarioB: "so với Kịch bản B",
+    savingsEarly: "tất toán sớm hơn",
+    savingsPrefix: "Nhờ trả thêm hàng tháng, khoản vay",
+    savingsSuffix: "tiết kiệm tiền lãi:"
   }
 };
 

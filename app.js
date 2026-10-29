@@ -28,6 +28,41 @@ const ltvVal = document.getElementById('in-ltv-val');
 
 let charts = { combined: null, pieSingle: null, lineSingle: null, pieA: null, pieB: null };
 
+// ---------- Round 2: persist cấu hình kịch bản (localStorage) ----------
+const PREFS_KEY = 'mortgagewise:scenarios:v1';
+
+function applyPrefs() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
+    if (!saved || typeof saved !== 'object') return;
+    for (const tab of ['A', 'B']) {
+      const s = saved[tab];
+      if (!s || typeof s !== 'object') continue;
+      for (const id of inputIds) {
+        const v = Number(s[id]);
+        if (Number.isFinite(v) && v >= 0) state[tab][id] = v;
+      }
+      if (s.repaymentMethod === 'reducing' || s.repaymentMethod === 'annuity') {
+        state[tab].repaymentMethod = s.repaymentMethod;
+      }
+    }
+    if (saved.activeTab === 'A' || saved.activeTab === 'B') state.activeTab = saved.activeTab;
+  } catch (e) {
+    console.warn('Không khôi phục được tham số đã lưu:', e);
+  }
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      A: { ...state.A, result: undefined },
+      B: { ...state.B, result: undefined },
+      activeTab: state.activeTab
+    }));
+  } catch (e) { /* localStorage bị chặn — bỏ qua */ }
+}
+applyPrefs();
+
 // Destroy a chart before re-creating it — Highcharts throws Error 16 and
 // stacks duplicate SVGs when Highcharts.chart() is called on an occupied
 // container without destroying the previous instance first.
@@ -74,6 +109,12 @@ function setLang(lang) {
   }
 
   updateTexts();
+  // Nhãn theme là text động (không data-i18n) — cập nhật theo lang mới
+  const themeTextEl = document.getElementById('theme-text');
+  if (themeTextEl) {
+    themeTextEl.textContent = document.documentElement.getAttribute('data-theme') === 'dark'
+      ? t('themeDark') : t('themeLight');
+  }
   recalculateAll(); // updates chart texts
 }
 
@@ -153,22 +194,31 @@ function setMode(mode) {
 }
 
 // Tab Toggle
+function syncTabUI() {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    const active = b.getAttribute('data-target') === state.activeTab;
+    b.classList.toggle('bg-white', active);
+    b.classList.toggle('text-indigo-600', active);
+    b.classList.toggle('shadow-sm', active);
+    b.classList.toggle('font-bold', active);
+    b.classList.toggle('text-slate-500', !active);
+    b.classList.toggle('hover:text-slate-700', !active);
+    b.classList.toggle('font-medium', !active);
+  });
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', (e) => {
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'font-bold');
-      b.classList.add('text-slate-500', 'hover:text-slate-700', 'font-medium');
-    });
     // e.currentTarget luôn là button gắn listener; e.target có thể là node con
     const btnEl = e.currentTarget;
-    btnEl.classList.remove('text-slate-500', 'hover:text-slate-700', 'font-medium');
-    btnEl.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'font-bold');
-
     state.activeTab = btnEl.getAttribute('data-target');
+    syncTabUI();
+    savePrefs();
     syncInputsToState();
     recalculateAll();
   });
 });
+syncTabUI(); // trạng thái tab cũng được khôi phục từ localStorage
 
 // Input Listeners — debounce để không destroy/rebuild chart Highcharts
 // (~50-200ms mỗi lần) trên TỪNG lần gõ phím.
@@ -328,6 +378,7 @@ function recalculateAll() {
     repaymentMethod: state.B.repaymentMethod
   });
 
+  savePrefs();
   updateUI();
 }
 
@@ -337,6 +388,8 @@ function updateUI() {
   const currentRes = state[state.activeTab].result;
 
   if (state.mode === 'compare') {
+    // Ẩn banner tiết kiệm (chỉ dành cho single mode)
+    document.getElementById('savings-banner')?.classList.add('hidden');
     // Update Comp Cards
     const totalA = resA.totalPaymentToBank;
     const totalB = resB.totalPaymentToBank;
@@ -373,12 +426,24 @@ function updateUI() {
     const elOutInterest = document.getElementById('out-interest');
     const elOutM1 = document.getElementById('out-m1');
     const elOutTenure = document.getElementById('out-tenure');
+    const elTenureNote = document.getElementById('out-tenure-note');
+    const elM1Note = document.getElementById('out-m1-note');
 
     if (elOutTotal) elOutTotal.textContent = formatCurrency(currentRes.totalPaymentToBank);
     if (elOutInterest) elOutInterest.textContent = formatCurrency(currentRes.totalInterest);
     if (elOutM1) elOutM1.textContent = formatCurrency(currentRes.m1);
     if (elOutTenure) elOutTenure.textContent = currentRes.payoffMonths;
 
+    // Ghi chú động: số năm + tính chất khoản trả theo phương thức đã chọn
+    const years = Math.round((currentRes.payoffMonths / 12) * 10) / 10;
+    if (elTenureNote) elTenureNote.textContent = `${t('months')} (${years} ${t('years')})`;
+    if (elM1Note) {
+      elM1Note.textContent = state[state.activeTab].repaymentMethod === 'annuity'
+        ? t('m1NoteAnnuity')
+        : t('m1NoteReducing');
+    }
+
+    renderSavingsInsight(currentRes);
     renderPieChartSingle(currentRes.loanAmount, currentRes.totalInterest);
     renderLineChartSingle(currentRes.amortizationSchedule);
   }
@@ -387,10 +452,68 @@ function updateUI() {
   renderMilestones(currentRes);
 }
 
+// ---------- Round 2: insight tiết kiệm nhờ trả thêm hàng tháng ----------
+// So sánh với kịch bản cơ sở (không trả thêm) để định lượng lợi ích.
+function renderSavingsInsight(res) {
+  const banner = document.getElementById('savings-banner');
+  const text = document.getElementById('savings-text');
+  if (!banner || !res) return;
+
+  if (state.mode !== 'single') {
+    banner.classList.add('hidden');
+    return;
+  }
+  const cur = state[state.activeTab];
+  if (!cur.extraPayment || cur.extraPayment <= 0) {
+    banner.classList.add('hidden');
+    return;
+  }
+
+  const baseline = calculateMortgage({
+    propertyPrice: cur.price,
+    ltv: cur.ltv,
+    promoRate: cur.promoRate,
+    promoPeriod: cur.promoPeriod,
+    floatingRate: cur.floatingRate,
+    loanTenure: cur.loanTenure,
+    extraPayment: 0,
+    repaymentMethod: cur.repaymentMethod
+  });
+
+  const monthsEarly = baseline.payoffMonths - cur.payoffMonths;
+  const savedInterest = baseline.totalInterest - cur.totalInterest;
+  const textEl = document.getElementById('savings-text');
+
+  if (monthsEarly > 0 && savedInterest > 0) {
+    banner.classList.remove('hidden');
+    text.textContent = `${t('savingsPrefix')} ${monthsEarly} ${t('months')} ${t('savingsEarly')} — ${t('savingsSuffix')} ${formatCurrency(savedInterest)}`;
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+// ---------- Round 2: màu chart theo theme sáng/tối ----------
+function chartPalette() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    text: isDark ? '#94a3b8' : '#64748b',
+    grid: isDark ? '#334155' : '#f1f5f9',
+    line: isDark ? '#334155' : '#e2e8f0',
+    title: isDark ? '#f1f5f9' : '#1e293b',
+    label: isDark ? '#94a3b8' : '#475569',
+    tooltipBg: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+    tooltipBorder: isDark ? '#334155' : '#e2e8f0',
+    principal: '#4f46e5',
+    interest: isDark ? '#475569' : '#cbd5e1',
+    interestAlt: isDark ? '#065f46' : '#a7f3d0'
+  };
+}
+
 function renderCombinedChart(scheduleA, scheduleB) {
   destroyChart("combined");
   const dataA = scheduleA.map(row => row.balance);
   const dataB = scheduleB.map(row => row.balance);
+  const pal = chartPalette();
 
   // Make categories based on the longer schedule
   const maxLen = Math.max(scheduleA.length, scheduleB.length);
@@ -399,10 +522,15 @@ function renderCombinedChart(scheduleA, scheduleB) {
   charts.combined = Highcharts.chart('chart-combined', {
     chart: { type: 'line', backgroundColor: 'transparent' },
     title: { text: null },
-    xAxis: { categories: categories, title: { text: t('tableMonth') }, tickInterval: 12 },
-    yAxis: { title: { text: t('chartBalance') }, labels: { formatter: function () { return this.value / 1000000 + 'M'; } } },
+    xAxis: { categories: categories, title: { text: t('tableMonth') }, tickInterval: 12, labels: { style: { color: pal.text } }, lineColor: pal.line, gridLineColor: pal.grid },
+    yAxis: { title: { text: t('chartBalance') }, gridLineColor: pal.grid, labels: { style: { color: pal.text }, formatter: function () { return this.value / 1000000 + 'M'; } } },
+    xAxis: { categories: categories, title: { text: t('tableMonth') }, tickInterval: 12, labels: { style: { color: pal.text } }, lineColor: pal.line, gridLineColor: pal.grid },
+    yAxis: { title: { text: t('chartBalance') }, gridLineColor: pal.grid, labels: { style: { color: pal.text }, formatter: function () { return this.value / 1000000 + 'M'; } } },
     tooltip: {
       shared: true,
+      backgroundColor: pal.tooltipBg,
+      borderColor: pal.tooltipBorder,
+      style: { color: pal.title },
       formatter: function () {
         let s = `${t('tableMonth')} ${this.x}`;
         this.points.forEach(point => {
@@ -430,17 +558,18 @@ function renderCombinedChart(scheduleA, scheduleB) {
         dashStyle: 'Dash' // Dashed line
       }
     ],
-    legend: { enabled: true, verticalAlign: 'bottom' },
+    legend: { enabled: true, verticalAlign: 'bottom', itemStyle: { color: pal.label } },
     credits: { enabled: false }
   });
 }
 
 function renderPieChartSingle(principal, interest) {
   destroyChart("pieSingle");
+  const pal = chartPalette();
   charts.pieSingle = Highcharts.chart('chart-pie-single', {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 320 },
     title: {
-      text: '<div style="text-align:center"><span style="font-size:12px;color:#64748b;font-weight:600">' + t('totalPrincipalInterest') + '</span><br><span style="font-size:22px;font-weight:800;color:#1e293b">' + formatCurrency(principal + interest) + '</span></div>',
+      text: '<div style="text-align:center"><span style="font-size:12px;color:' + pal.text + ';font-weight:600">' + t('totalPrincipalInterest') + '</span><br><span style="font-size:22px;font-weight:800;color:' + pal.title + '">' + formatCurrency(principal + interest) + '</span></div>',
       align: 'center',
       verticalAlign: 'middle',
       y: 15,
@@ -455,9 +584,9 @@ function renderPieChartSingle(principal, interest) {
           formatter: function () {
             return '<b>' + this.point.name + '</b>: ' + formatCurrency(this.y);
           },
-          style: { fontWeight: 'bold', color: '#475569', fontSize: '10px', textOutline: 'none' }
+          style: { fontWeight: 'bold', color: pal.label, fontSize: '10px', textOutline: 'none' }
         },
-        colors: ['#4f46e5', '#cbd5e1']
+        colors: [pal.principal, pal.interest]
       }
     },
     series: [{
@@ -474,16 +603,17 @@ function renderPieChartSingle(principal, interest) {
 function renderPieChartCompare(scenario, principal, interest) {
   const containerId = 'chart-pie-' + scenario;
   const chartKey = 'pie' + scenario;
+  const pal = chartPalette();
 
-  let colors = ['#4f46e5', '#cbd5e1']; // Default Single (Indigo / Slate)
-  if (scenario === 'A') colors = ['#4f46e5', '#cbd5e1'];
-  if (scenario === 'B') colors = ['#10b981', '#a7f3d0'];
+  let colors = [pal.principal, pal.interest]; // Default Single (Indigo / Slate)
+  if (scenario === 'A') colors = [pal.principal, pal.interest];
+  if (scenario === 'B') colors = ['#10b981', pal.interestAlt];
 
   destroyChart(chartKey);
   charts[chartKey] = Highcharts.chart(containerId, {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 280 },
     title: {
-      text: '<div style="text-align:center"><span style="font-size:12px;color:#64748b;font-weight:600">' + t('totalPrincipalInterest') + '</span><br><span style="font-size:18px;font-weight:800;color:#1e293b">' + formatCurrency(principal + interest) + '</span></div>',
+      text: '<div style="text-align:center"><span style="font-size:12px;color:' + pal.text + ';font-weight:600">' + t('totalPrincipalInterest') + '</span><br><span style="font-size:18px;font-weight:800;color:' + pal.title + '">' + formatCurrency(principal + interest) + '</span></div>',
       align: 'center',
       verticalAlign: 'middle',
       y: 10,
@@ -498,7 +628,7 @@ function renderPieChartCompare(scenario, principal, interest) {
           formatter: function () {
             return '<b>' + this.point.name + '</b><br>' + formatCurrency(this.y);
           },
-          style: { fontWeight: 'bold', color: '#475569', fontSize: '10px', textOutline: 'none' },
+          style: { fontWeight: 'bold', color: pal.label, fontSize: '10px', textOutline: 'none' },
           distance: -30 // Move labels inside for better look in small charts
         },
         colors: colors
@@ -517,6 +647,7 @@ function renderPieChartCompare(scenario, principal, interest) {
 
 function renderLineChartSingle(schedule) {
   destroyChart("lineSingle");
+  const pal = chartPalette();
   const data = schedule.map(row => row.balance);
 
   charts.lineSingle = Highcharts.chart('chart-line-single', {
@@ -524,14 +655,14 @@ function renderLineChartSingle(schedule) {
     title: { text: '' },
     xAxis: {
       categories: schedule.map(r => r.month),
-      labels: { style: { color: '#64748b', fontSize: '10px', fontWeight: 'bold' } },
-      lineColor: '#e2e8f0',
-      tickColor: '#e2e8f0'
+      labels: { style: { color: pal.text, fontSize: '10px', fontWeight: 'bold' } },
+      lineColor: pal.line,
+      tickColor: pal.line
     },
     yAxis: {
       title: { text: '' },
-      labels: { formatter: function () { return (this.value / 1000000) + (currentLang === 'vi' ? ' Tr' : 'M'); }, style: { color: '#64748b', fontSize: '10px', fontWeight: 'bold' } },
-      gridLineColor: '#f1f5f9',
+      labels: { formatter: function () { return (this.value / 1000000) + (currentLang === 'vi' ? ' Tr' : 'M'); }, style: { color: pal.text, fontSize: '10px', fontWeight: 'bold' } },
+      gridLineColor: pal.grid,
       gridLineDashStyle: 'dash'
     },
     legend: { enabled: false },
@@ -539,11 +670,11 @@ function renderLineChartSingle(schedule) {
       shared: true,
       valueSuffix: ' ₫',
       valueDecimals: 0,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e2e8f0',
+      backgroundColor: pal.tooltipBg,
+      borderColor: pal.tooltipBorder,
       borderRadius: 8,
       shadow: true,
-      style: { color: '#1e293b' }
+      style: { color: pal.title }
     },
     plotOptions: {
       area: {
@@ -673,7 +804,7 @@ if (themeToggle) {
     const isDark = theme === 'dark';
     if (themeIconSun) themeIconSun.classList.toggle('hidden', isDark);
     if (themeIconMoon) themeIconMoon.classList.toggle('hidden', !isDark);
-    if (themeText) themeText.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    if (themeText) themeText.textContent = isDark ? t('themeDark') : t('themeLight');
   };
 
   // Đồng bộ icon với theme đã restore từ localStorage ở đầu file

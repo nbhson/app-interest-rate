@@ -35,3 +35,34 @@
 
 ### Vòng 1
 - Self-review: `node --check` pass cho cả 3 file JS. Đã rà lại hàm `numberToVietnameseWords` sau 2 lần viết lại: số < 1000 đọc chuẩn ("ba trăm bốn mươi lăm"), số có phần lẻ (<100) thêm "lẻ". CSV: fields bọc ngoặc kép, BOM giữ nguyên cho Excel, revokeObjectURL sau click.
+
+## Round 2 (2026-10-29)
+
+### Findings (audit đợt 2)
+
+| # | Severity | Vị trí | Vấn đề | Xử lý |
+|---|----------|--------|--------|-------|
+| 1 | BUG (dead feature) | app.js ↔ index.html | Toàn bộ block theme-toggle (#theme-toggle, icon sun/moon, theme-text) KHÔNG tồn tại trong HTML → dark mode có CSS + code nhưng KHÔNG BAO GIỜ bật được | Thêm nút toggle vào header (sun/moon icon + label i18n) — code có sẵn chỉ cần element |
+| 2 | FEATURE GAP | app.js | Reload mất toàn bộ tham số 2 kịch bản | Persist A/B + activeTab vào localStorage (`mortgagewise:scenarios:v1`), restore an toàn (validate số/khoảng giá trị) |
+| 3 | FEATURE GAP | UX | Không định lượng được lợi ích của "trả thêm hàng tháng" | Banner 💸 insight: so sánh baseline extraPayment=0 → "tất toán sớm N tháng, tiết kiệm M tiền lãi"; tự ẩn khi extra=0 hoặc ở compare mode |
+| 4 | BUG | app.js | Tab button KHÔNG bao giờ có style active lúc khởi động (chỉ gán class khi click) + activeTab khôi phục từ prefs nhưng UI không phản ánh | syncTabUI() gọi ở init + khi click |
+| 5 | MINOR (i18n) | index.html | ~15 label hardcode tiếng Việt (lãi thả nổi, thời hạn, phương thức trả nợ, chart titles, table headers, "Xuất báo cáo CSV", "vs Scenario B"...) | data-i18n + 25 key mới cho cả en/vi |
+| 6 | BUG | index.html | "Tháng (20 năm)" hardcode dưới out-tenure — sai khi tenure=10 hay payoff sớm | out-tenure-note động: `X tháng (Y năm)` theo payoffMonths |
+| 7 | BUG | app.js | Ghi chú out-m1 "Giảm dần theo dư nợ" sai khi chọn Annuity (khoản trả cố định) | Đổi text theo repaymentMethod |
+| 8 | MINOR | index.html | "$" prefix cho input VNĐ | Đổi "₫" |
+| 9 | MINOR | charts | Chart hardcode màu light (#64748b/#1e293b/tooltip trắng) → dark mode chữ on-chart không đọc được | chartPalette() theo data-theme, áp cho cả 4 loại chart; đổi theme → recalculateAll đã có sẵn sẽ re-render đúng màu |
+| 10 | MINOR | index.html | Thiếu favicon, theme-color | Inline SVG favicon "₫" + theme-color |
+| 11 | UX | compare card | Badge "Optimized / Interest Savvy Selection" là text tĩnh vô nghĩa | Thay bằng diff thực (badge #comp-diff-int đã có) + caption i18n "so với Kịch bản B" |
+
+### Trạng thái Round 2
+
+- [x] Plan
+- [x] Features: persist kịch bản (localStorage), theme toggle (sửa dead code), savings insight banner
+- [x] UX: i18n toàn bộ label còn lại, dynamic notes (tenure/m1), chart palette theo theme, favicon + theme-color, syncTabUI
+- [x] Verify: node --check cả 3 file; cross-check mọi data-i18n key tồn tại trong 2 ngôn ngữ
+- [x] Commit + self-review
+
+### Verify Log
+- `node --check` OK cho app.js, i18n.js, calculator.js.
+- Script check: 40 data-i18n keys trong HTML đều tồn tại trong i18n.js.
+- Không build step/test suite; calculator.js không đổi logic (tránh regress công thức round 1 đã review).
