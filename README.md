@@ -1,5 +1,7 @@
 # Interest Rate — Mortgage Calculator 🏠
 
+[![CI](https://github.com/nbhson/app-interest-rate/actions/workflows/ci.yml/badge.svg)](https://github.com/nbhson/app-interest-rate/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Máy tính vay mua nhà (mortgage calculator) viết bằng **vanilla JS + Tailwind CDN + DaisyUI + Highcharts**.
 
 ## Tính năng
