@@ -129,3 +129,8 @@ function calculateMortgage(params) {
     payoffMonths: currentMonth
   };
 }
+
+// Export cho unit test (node). Browser: `module` là undefined nên guard bị bỏ qua.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { calculateMortgage };
+}

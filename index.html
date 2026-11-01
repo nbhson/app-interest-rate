@@ -18,21 +18,10 @@
   </script>
 
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#4f46e5', // indigo-600
-            'primary-focus': '#4338ca', // indigo-700
-            success: '#10b981', // emerald-500
-            error: '#ef4444', // red-500
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Tailwind utilities precompiled offline (thay cho Tailwind Play CDN).
+       regenerate: npx tailwindcss@3.4.17 -c tailwind.config.js -i input.css -o tailwind.css
+       (xem tailwind.config.js / input.css trong repo) -->
+  <link href="tailwind.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f46e5'/><text x='16' y='22' font-size='16' font-weight='bold' text-anchor='middle' fill='white'>₫</text></svg>" />
   <meta name="theme-color" content="#4f46e5" />
@@ -123,7 +112,7 @@
           
           <div class="space-y-6">
             <div>
-              <label class="block text-[12px] font-bold text-slate-800 mb-2 uppercase tracking-wide" data-i18n="propertyPrice">Giá trị bất động sản (VNĐ)</label>
+              <label for="in-price" class="block text-[12px] font-bold text-slate-800 mb-2 uppercase tracking-wide" data-i18n="propertyPrice">Giá trị bất động sản (VNĐ)</label>
               <div class="relative">
                 <span class="absolute left-4 top-3 text-slate-400 text-sm font-bold">₫</span>
                 <input type="number" id="in-price" value="3000000000" min="0" step="100000000" class="w-full border border-slate-300 rounded-xl pl-8 pr-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white text-slate-800 shadow-sm" aria-label="Giá trị bất động sản">
@@ -136,7 +125,7 @@
 
             <div>
               <div class="flex justify-between items-center mb-2">
-                <label class="text-[12px] font-bold text-slate-800 uppercase tracking-wide" data-i18n="ltv">Tỷ lệ vay (LTV)</label>
+                <label for="in-ltv" class="text-[12px] font-bold text-slate-800 uppercase tracking-wide" data-i18n="ltv">Tỷ lệ vay (LTV)</label>
                 <span class="text-[12px] font-bold text-emerald-600" id="in-ltv-val">50%</span>
               </div>
               <div class="px-1 mt-3">
@@ -147,14 +136,14 @@
             
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoRate">Lãi ưu đãi</label>
+                <label for="in-promoRate" class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoRate">Lãi ưu đãi</label>
                 <div class="relative">
                   <input type="number" id="in-promoRate" value="10" min="0" step="0.1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">%</span>
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoPeriodShort">Thời gian ưu đãi</label>
+                <label for="in-promoPeriod" class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="promoPeriodShort">Thời gian ưu đãi</label>
                 <div class="relative">
                   <input type="number" id="in-promoPeriod" value="12" min="0" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">MO</span>
@@ -164,14 +153,14 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="floatingRateShort">Lãi thả nổi</label>
+                <label for="in-floatingRate" class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="floatingRateShort">Lãi thả nổi</label>
                 <div class="relative">
                   <input type="number" id="in-floatingRate" value="13" min="0" step="0.1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">%</span>
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="tenureShort">Thời hạn vay</label>
+                <label for="in-loanTenure" class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="tenureShort">Thời hạn vay</label>
                 <div class="relative">
                   <input type="number" id="in-loanTenure" value="10" min="1" step="1" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-indigo-500 bg-white text-slate-800 shadow-sm pr-10">
                   <span class="absolute right-4 top-3 text-slate-400 text-xs font-bold">YR</span>
@@ -180,7 +169,7 @@
             </div>
 
             <div class="border-t border-slate-100 pt-5">
-              <label class="block text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="extraPayment">Trả thêm hàng tháng</label>
+              <label for="in-extraPayment" class="block text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wide" data-i18n="extraPayment">Trả thêm hàng tháng</label>
               <div class="relative">
                 <span class="absolute left-4 top-3.5 text-slate-400">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" stroke-width="2"></rect><line x1="3" y1="10" x2="21" y2="10" stroke-width="2"></line></svg>

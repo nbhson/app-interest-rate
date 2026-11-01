@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/nbhson/app-interest-rate/actions/workflows/ci.yml/badge.svg)](https://github.com/nbhson/app-interest-rate/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Máy tính vay mua nhà (mortgage calculator) viết bằng **vanilla JS + Tailwind CDN + DaisyUI + Highcharts**.
+Máy tính vay mua nhà (mortgage calculator) viết bằng **vanilla JS + Tailwind (precompiled) + DaisyUI + Highcharts**.
 
 ## Tính năng
 
@@ -20,7 +20,7 @@ Không cần build — mở trực tiếp `index.html` trong trình duyệt:
 open index.html
 ```
 
-Lưu ý: cần kết nối Internet vì Tailwind/DaisyUI/Highcharts load qua CDN.
+Lưu ý: cần kết nối Internet vì DaisyUI/Highcharts load qua CDN (Tailwind đã được precompile local qua `tailwind.css`).
 
 ## Cấu trúc
 
@@ -30,6 +30,7 @@ app.js          # Logic chính: tính toán, chart, tab, dark mode
 calculator.js   # Hàm tính mortgage thuần (dễ test)
 i18n.js         # Đa ngôn ngữ
 styles.css      # Style bổ sung
+tailwind.css    # Tailwind utilities precompiled (input.css + tailwind.config.js để regenerate)
 ```
 
 ## License

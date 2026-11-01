@@ -523,8 +523,6 @@ function renderCombinedChart(scheduleA, scheduleB) {
     title: { text: null },
     xAxis: { categories: categories, title: { text: t('tableMonth') }, tickInterval: 12, labels: { style: { color: pal.text } }, lineColor: pal.line, gridLineColor: pal.grid },
     yAxis: { title: { text: t('chartBalance') }, gridLineColor: pal.grid, labels: { style: { color: pal.text }, formatter: function () { return this.value / 1000000 + 'M'; } } },
-    xAxis: { categories: categories, title: { text: t('tableMonth') }, tickInterval: 12, labels: { style: { color: pal.text } }, lineColor: pal.line, gridLineColor: pal.grid },
-    yAxis: { title: { text: t('chartBalance') }, gridLineColor: pal.grid, labels: { style: { color: pal.text }, formatter: function () { return this.value / 1000000 + 'M'; } } },
     tooltip: {
       shared: true,
       backgroundColor: pal.tooltipBg,
